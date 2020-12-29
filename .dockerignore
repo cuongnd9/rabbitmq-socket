@@ -1,0 +1,12 @@
+node_modules/
+.git/
+
+.commitlintrc.json
+.editorconfig
+.eslintignore
+.eslintrc
+.gitattributes
+.gitignore
+
+README.md
+LICENSE
