@@ -1,7 +1,13 @@
-import { Connection, Channel, connect, Message } from 'amqplib';
+/* eslint-disable require-await */
+/* eslint-disable no-useless-constructor */
+/* eslint-disable no-empty-function */
+import {
+  Connection, Channel, connect, Message,
+} from 'amqplib';
 
 class RabbitMQ {
   private conn: Connection;
+
   private channel: Channel;
 
   constructor(private uri: string) {}
@@ -12,6 +18,9 @@ class RabbitMQ {
   }
 
   async publishInQueue(queue: string, message: string) {
+    await this.channel.assertQueue(queue, {
+      durable: false,
+    });
     return this.channel.sendToQueue(queue, Buffer.from(message));
   }
 
@@ -23,13 +32,15 @@ class RabbitMQ {
     return this.channel.publish(exchange, routingKey, Buffer.from(message));
   }
 
-  async consume(queue: string, callback: (message: Message) => void) {
-    return this.channel.consume(queue, (message) => {
-      if (message) {
-        callback(message);
-        this.channel.ack(message);
-      }
-    });
+  async consume(queue: string): Promise<Message> {
+    return new Promise<Message>(((resolve) => {
+      this.channel.consume(queue, (message) => {
+        if (message) {
+          resolve(message);
+          this.channel.ack(message);
+        }
+      });
+    }));
   }
 }
 

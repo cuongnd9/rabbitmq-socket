@@ -1,3 +1,7 @@
 import { config } from './config';
 
-export const rabbitMQConnectionString = `amqp://${config.rabbitMQUser}:${config.rabbitMQPassword}@${config.rabbitMQHost}:${config.rabbitMQPort}`;
+export const RABBITMQ_CONNECTION_STRING = `amqp://${config.rabbitMQUser}:${config.rabbitMQPassword}@${config.rabbitMQHost}:${config.rabbitMQPort}`;
+
+export const QUEUES = {
+  task: 'TASK',
+};

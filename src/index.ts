@@ -1,13 +1,15 @@
 import { logger, globalOptions } from 'juno-js';
 
-import { config, RabbitMQ, rabbitMQConnectionString } from './components';
+import { config } from './components';
+import { executeConsumer } from './consumer';
+import { executeProducer } from './producer';
 
 globalOptions.environment = config.nodeEnv;
 
-const main = async () => {
+const main = () => {
   try {
-    const rabbitMQ = new RabbitMQ(rabbitMQConnectionString);
-    await rabbitMQ.start();
+    executeProducer();
+    executeConsumer();
   } catch (e) {
     logger.error('Global error 🐛', e);
   }
