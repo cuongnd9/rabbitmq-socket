@@ -3,25 +3,30 @@ version: '3.7'
 services:
   rabbitmq:
     container_name: rabbitmq
-    image: 'docker.io/bitnami/rabbitmq:3.8-debian-10'
+    image: rabbitmq:3-management
     ports:
-      - '4369:4369'
-      - '5672:5672'
-      - '25672:25672'
-      - '15672:15672'
-    volumes:
-      - 'rabbitmq_data:/bitnami'
-  service:
-    container_name: service
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - my-net
+    environment:
+      - RABBITMQ_DEFAULT_USER=rabbitmq
+      - RABBITMQ_DEFAULT_PASS=rabbitmq
+
+  api-service:
+    container_name: api-service
     image: 'node:12'
     working_dir: /app
-#    ports:
-#      - "50000:50000"
+    ports:
+      - '50000:50000'
+    networks:
+      - my-net
     volumes:
       - .:/app
       - /app/node_modules
     command: 'sh -c "yarn && yarn start:dev"'
 
-volumes:
-  rabbitmq_data:
-    driver: local
+networks:
+  my-net:
+    driver: bridge
+
