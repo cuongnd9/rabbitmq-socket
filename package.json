@@ -26,13 +26,19 @@
   },
   "dependencies": {
     "amqplib": "^0.6.0",
-    "juno-js": "^0.1.1"
+    "express": "^4.17.1",
+    "faker": "^5.1.0",
+    "juno-js": "^0.1.1",
+    "socket.io": "^3.0.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
     "@commitlint/config-conventional": "^8.3.4",
     "@types/amqplib": "^0.5.17",
+    "@types/express": "^4.17.9",
+    "@types/faker": "^5.1.5",
     "@types/node": "^12.12.7",
+    "@types/socket.io": "^2.1.12",
     "@typescript-eslint/eslint-plugin": "^2.17.0",
     "@typescript-eslint/parser": "^2.17.0",
     "eslint": "^6.8.0",
