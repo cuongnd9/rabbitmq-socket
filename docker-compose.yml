@@ -13,18 +13,38 @@ services:
       - RABBITMQ_DEFAULT_USER=rabbitmq
       - RABBITMQ_DEFAULT_PASS=rabbitmq
 
-  api-service:
-    container_name: api-service
+  server:
+    container_name: server
     image: 'node:12'
     working_dir: /app
+    restart: on-failure
     ports:
-      - '50000:50000'
+      - '9000:9000'
+    depends_on:
+      - rabbitmq
     networks:
       - my-net
     volumes:
-      - .:/app
+      - ./server:/app
       - /app/node_modules
     command: 'sh -c "yarn && yarn start:dev"'
+
+  client:
+    container_name: client
+    build:
+      context: ./client
+    restart: on-failure
+    ports:
+      - 3000:3000
+    depends_on:
+      - server
+    networks:
+      - my-net
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    command: 'sh -c "yarn && yarn start"'
+
 
 networks:
   my-net:
