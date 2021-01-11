@@ -8,9 +8,7 @@ const executeProducer = async () => {
   await rabbitMQ.start();
   // TODO: fake action, end-user creates new task.
   await rabbitMQ.publishInQueue(QUEUES.newTask, name.title());
-  setInterval(async () => {
-    await rabbitMQ.publishInQueue(QUEUES.newTask, name.title());
-  }, 7000);
+  setInterval (() => rabbitMQ.publishInQueue(QUEUES.newTask, name.title()), 10000);
 };
 
 export { executeProducer };
