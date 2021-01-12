@@ -5,7 +5,8 @@ Building a realtime application with RabbitMQ 🐰 and Socket 🦊.
 - Start RabbitMQ & API service
 
 ```shell
-yarn
+cd server && yarn
+cd ../client && yarn
 docker-compose up -d --build
 ```
 

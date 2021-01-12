@@ -1,26 +1,16 @@
 import express from 'express';
 import http from 'http';
-import { Socket, Server } from 'socket.io';
-import { name } from 'faker';
+import { Server } from 'socket.io';
 
+import { AppController } from './controllers/app.controller';
 import { config } from './components';
 
 const executeApp = () => {
   const app = express();
-  app.get('/', () => '🦄');
-
   const server = http.createServer(app);
-
   const io = new Server(server);
 
-  io.on("connection", (socket: Socket) => {
-    console.log("New client connected");
-    socket.emit('TOPIC', name.title())
-    socket.on("disconnect", () => {
-      console.log("Client disconnected");
-    });
-  });
-
+  io.on('connection', AppController.onConnection);
   server.listen(config.port, () => console.log(`🌼 Listening on port ${config.port}`));
 };
 

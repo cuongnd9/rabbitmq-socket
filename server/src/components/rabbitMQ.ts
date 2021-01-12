@@ -39,8 +39,14 @@ class RabbitMQ {
           resolve(message);
           this.channel.ack(message);
         }
+      }, {
+        noAck: false,
       });
     }));
+  }
+
+  async closeChannel() {
+    await this.channel.close();
   }
 }
 
