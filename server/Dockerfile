@@ -19,7 +19,7 @@ RUN yarn build
 FROM node:14.4.0-alpine
 
 # Expose port 9000
-EXPOSE 9000
+EXPOSE 1234
 
 WORKDIR /home/node/app
 

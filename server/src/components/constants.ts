@@ -8,9 +8,10 @@ export const QUEUE = {
 
 export const EVENT = {
   userConnection: 'USER_CONNECTION',
-  userDisconnection: 'USER_DISCONNECTION',
+  userDisconnection: 'disconnect',
   taskHandler: 'TASK_HANDLER',
   taskAssignment: 'TASK_ASSIGNMENT',
+  userCloseTab: 'USER_CLOSE_TAB',
 };
 
 export const TASK_STATUS = {
