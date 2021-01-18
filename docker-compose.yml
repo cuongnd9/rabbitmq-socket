@@ -28,13 +28,29 @@ services:
     volumes:
       - 'mongodb:/data/db'
 
+  publisher:
+    container_name: publisher
+    image: 'node:12'
+    working_dir: /app
+    restart: on-failure
+    ports: 
+      - '3005:3005'
+    depends_on:
+      - rabbitmq
+    networks:
+      - my-net
+    volumes:
+      - ./publisher:/app
+      - /app/node_modules
+    command: 'sh -c "npm install && npm start"'
+
   server:
     container_name: server
     image: 'node:12'
     working_dir: /app
     restart: on-failure
     ports:
-      - '9000:9000'
+      - '1234:1234'
     depends_on:
       - rabbitmq
       - mongodb

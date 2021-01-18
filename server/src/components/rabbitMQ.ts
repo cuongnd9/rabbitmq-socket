@@ -4,6 +4,9 @@
 import {
   Connection, Channel, connect, Message,
 } from 'amqplib';
+import { QUEUE, EVENT } from './constants';
+import { io } from '../app';
+import { AppController } from '../controllers/app.controller';
 
 class RabbitMQ {
   private conn: Connection;
@@ -17,11 +20,15 @@ class RabbitMQ {
     this.channel = await this.conn.createChannel();
   }
 
-  async publishInQueue(queue: string, message: string) {
-    await this.channel.assertQueue(queue, {
+  async assertQueue(): Promise<void> {
+    await this.channel.assertQueue(QUEUE.newTask, {
       durable: false,
+      maxPriority: 100
     });
-    return this.channel.sendToQueue(queue, Buffer.from(message));
+  }
+
+  async publishInQueue(queue: string, message: any, priority?: number) {
+    await this.channel.sendToQueue(queue, Buffer.from(message), { priority });
   }
 
   async publishInExchange(
@@ -34,15 +41,27 @@ class RabbitMQ {
 
   async consume(queue: string): Promise<Message> {
     return new Promise<Message>(((resolve) => {
-      this.channel.consume(queue, (message) => {
-        if (message) {
+      this.channel.consume(queue, async (message: any) => {
+        const randomSocketId = AppController.randomId(AppController.getCustomerServiceUsers());
+        let users = AppController.getCustomerServiceUsers();
+        const userId = AppController.getMapId().get(randomSocketId) || '';
+        if(AppController.checkAssign(users, userId)) {
+          const content = JSON.parse(message.content.toString());
+          io.to(randomSocketId).emit(EVENT.taskAssignment, content);
           resolve(message);
+          users = AppController.changeStatusUser(users, { socketId: randomSocketId, status: 'inprocess' })
+          AppController.setCustomerServiceUsers(users);
           this.channel.ack(message);
+          this.closeChannel();
         }
       }, {
         noAck: false,
       });
     }));
+  }
+
+  async getQueueInfo(): Promise<any> {
+    return this.channel.checkQueue(QUEUE.newTask);
   }
 
   async closeChannel() {
