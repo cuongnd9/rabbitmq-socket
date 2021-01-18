@@ -23,6 +23,7 @@ class RabbitMQ {
   async assertQueue(): Promise<void> {
     await this.channel.assertQueue(QUEUE.newTask, {
       durable: false,
+      maxPriority: 100
     });
   }
 
@@ -40,7 +41,7 @@ class RabbitMQ {
 
   async consume(queue: string): Promise<Message> {
     return new Promise<Message>(((resolve) => {
-      this.channel.consume(queue, (message: any) => {
+      this.channel.consume(queue, async (message: any) => {
         const randomSocketId = AppController.randomId(AppController.getCustomerServiceUsers());
         let users = AppController.getCustomerServiceUsers();
         const userId = AppController.getMapId().get(randomSocketId) || '';

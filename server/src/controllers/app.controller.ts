@@ -4,40 +4,40 @@ import { logger } from 'juno-js';
 import {
   config, RabbitMQ, EVENT, TASK_STATUS, RABBITMQ_CONNECTION_STRING, QUEUE,
 } from '../components';
-import { CustomerServiceUser } from '../types/app.type';
+import { CustomerServiceUser, Task } from '../types/app.type';
 
 class AppController {
   private static customerServiceUsers: CustomerServiceUser[] = [];
   private static mapId: Map<string, string> = new Map();
 
   static onConnection(socket: Socket) {
-    socket.on(EVENT.userConnection,({ id, socketId }: any, socket: any) => AppController.onUserConnection({ id, socketId }, socket));
-    socket.on(EVENT.taskHandler, (user: CustomerServiceUser, result: any) => AppController.onTaskHandler(user, result, socket));
+    socket.on(EVENT.userConnection,(user: CustomerServiceUser, socket: Socket) => AppController.onUserConnection(user, socket));
+    socket.on(EVENT.taskHandler, (user: CustomerServiceUser, result: Task) => AppController.onTaskHandler(user, result, socket));
     socket.on(EVENT.userDisconnection,(() => AppController.onUserDisconnection(socket)));
     socket.on(EVENT.userCloseTab, AppController.onUserCloseTab);
   }
 
-  private static onUserConnection({ id, socketId }: any, socket: any) {
-    AppController.customerServiceUsers.push({ id, status: 'ready', socketId });
-    AppController.mapId.set(socketId, id);
+  private static onUserConnection(user: CustomerServiceUser, socket: Socket) {
+    AppController.customerServiceUsers.push(user);
+    AppController.mapId.set(user.socketId, user.id!);
     console.log('----------Connection-------------------');
     console.log(AppController.customerServiceUsers);
     AppController.onSubscriber(socket);
   }
 
-  private static onUserDisconnection(socket: any) {
+  private static onUserDisconnection(socket: Socket) {
     AppController.customerServiceUsers = AppController.customerServiceUsers.filter(user => user.id !== AppController.mapId.get(socket.id));
     AppController.mapId.delete(socket.id);
     console.log('----------------Disconnect------------------');
     console.log(AppController.customerServiceUsers);
   }
 
-  private static async onTaskHandler(user: CustomerServiceUser, result: any, socket: any) {
+  private static async onTaskHandler(user: CustomerServiceUser, result: Task, socket: Socket) {
     const rabbitMQ = new RabbitMQ(RABBITMQ_CONNECTION_STRING);
     await rabbitMQ.start();
     AppController.customerServiceUsers = AppController.changeStatusUser(AppController.customerServiceUsers, user);
     if (result.status === 'faile') {
-      let priority = result.count + 1;
+      let priority = result?.count! + 1;
       const dataRetry = {
           ...result,
           text: Math.floor(Math.random() * Math.floor(10)),
@@ -45,15 +45,20 @@ class AppController {
       await rabbitMQ.publishInQueue(QUEUE.newTask, Buffer.from(JSON.stringify(dataRetry)), priority)
       await rabbitMQ.consume(QUEUE.newTask);
     } else {
-      AppController.onSubscriber(socket);
+      const queueInfo = await rabbitMQ.getQueueInfo();
+      // if queue have message or have CS available then create consume to get message
+      if (queueInfo.messageCount > 0 || AppController.haveUserConnect(AppController.customerServiceUsers)) {
+        AppController.onSubscriber(socket);
+      } else {
+        console.log('Task Done');
+      }
     }
   }
 
-  private static async onUserCloseTab(user: CustomerServiceUser, result: any) {
-    console.log('retry-----------------------');
+  private static async onUserCloseTab(user: CustomerServiceUser, result: Task) {
     const rabbitMQ = new RabbitMQ(RABBITMQ_CONNECTION_STRING);
     await rabbitMQ.start();
-    let priority = result.count + 1;
+    let priority = result.count! + 1;
     await rabbitMQ.publishInQueue(QUEUE.newTask, Buffer.from(JSON.stringify(result)), priority);
   }
 
@@ -92,6 +97,10 @@ class AppController {
         }
         return user;
     });
+  }
+
+  public static haveUserConnect(customerServiceUsers: CustomerServiceUser[]) {
+    return customerServiceUsers.filter(user => user.status === 'ready').length > 0;
   }
 
   public static getCustomerServiceUsers(): CustomerServiceUser[] {

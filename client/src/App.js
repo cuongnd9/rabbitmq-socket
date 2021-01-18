@@ -19,7 +19,7 @@ class App extends React.Component {
   componentDidMount() {
     const id = uuid();
     socket.on('connect', () => {
-      socket.emit('USER_CONNECTION', { id, socketId: socket.id });
+      socket.emit('USER_CONNECTION', { id, socketId: socket.id, status: 'ready' });
     })
 
     socket.on('TASK_ASSIGNMENT', (data) => {
@@ -94,7 +94,8 @@ class App extends React.Component {
     return (
       <div className="App" style={{ marginTop: '30px' }}>
         <div>
-          <input name="input" style={{ marginRight:'20px' }} onChange={this.handleChange} />
+          <p>{this.state?.task?.id}</p>
+          <input name="input" style={{ marginRight:'20px' }} onChange={this.handleChange} defaultValue={this.state?.task?.text} />
           <button onClick={this.handleSubmit}>Submit</button>
         </div>
      </div>

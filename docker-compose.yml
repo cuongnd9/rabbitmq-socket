@@ -42,7 +42,7 @@ services:
     volumes:
       - ./publisher:/app
       - /app/node_modules
-    command: 'sh -c "npm install && node index.js"'
+    command: 'sh -c "npm install && npm start"'
 
   server:
     container_name: server

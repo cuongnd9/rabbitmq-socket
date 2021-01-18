@@ -7,6 +7,7 @@ async function publisher({ id, text }) {
 
     await channel.assertQueue(queue, { 
         durable: false,
+        maxPriority: 100
     })
     const message = {
         id,
