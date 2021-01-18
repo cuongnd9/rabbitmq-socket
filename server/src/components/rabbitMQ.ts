@@ -23,7 +23,7 @@ class RabbitMQ {
   async assertQueue(): Promise<void> {
     await this.channel.assertQueue(QUEUE.newTask, {
       durable: false,
-      maxPriority: 100
+      maxPriority: 100,
     });
   }
 
@@ -45,11 +45,11 @@ class RabbitMQ {
         const randomSocketId = AppController.randomId(AppController.getCustomerServiceUsers());
         let users = AppController.getCustomerServiceUsers();
         const userId = AppController.getMapId().get(randomSocketId) || '';
-        if(AppController.checkAssign(users, userId)) {
+        if (AppController.checkAssign(users, userId)) {
           const content = JSON.parse(message.content.toString());
           io.to(randomSocketId).emit(EVENT.taskAssignment, content);
           resolve(message);
-          users = AppController.changeStatusUser(users, { socketId: randomSocketId, status: 'inprocess' })
+          users = AppController.changeStatusUser(users, { socketId: randomSocketId, status: 'inprocess' });
           AppController.setCustomerServiceUsers(users);
           this.channel.ack(message);
           this.closeChannel();

@@ -12,6 +12,11 @@ const config = {
   rabbitMQPort: process.env.RABBITMQ_PORT || '5672',
   rabbitMQUser: process.env.RABBITMQ_USER || 'rabbitmq',
   rabbitMQPassword: process.env.RABBITMQ_PASSWORD || 'rabbitmq',
+  jwt: {
+    secretKey: process.env.JWT_SECRET_KEY || '3f4a1711-15ae-48d0-8f34-db627c0c7e62',
+    algorithm: process.env.JWT_ALGORITHM || 'HS256',
+    expiresIn: process.env.JWT_EXPIRES_IN || '30m',
+  },
 };
 
 export { config };
