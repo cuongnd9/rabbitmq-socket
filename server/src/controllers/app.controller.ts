@@ -2,7 +2,7 @@ import { Socket } from 'socket.io';
 import { logger } from 'juno-js';
 
 import {
-  config, RabbitMQ, EVENT, TASK_STATUS, RABBITMQ_CONNECTION_STRING, QUEUE,
+  RabbitMQ, EVENT, RABBITMQ_CONNECTION_STRING, QUEUE,
 } from '../components';
 import { CustomerServiceUser, Task } from '../types/app.type';
 
@@ -13,7 +13,7 @@ class AppController {
 
   static onConnection(socket: Socket) {
     // FIXME: callback parameters.
-    socket.on(EVENT.userConnection, (user: CustomerServiceUser, socket1: Socket) => this.onUserConnection(user, socket1));
+    socket.on(EVENT.userConnection, (user: CustomerServiceUser) => this.onUserConnection(user, socket));
     socket.on(EVENT.taskHandler, (user: CustomerServiceUser, result: Task) => this.onTaskHandler(user, result, socket));
     socket.on(EVENT.userDisconnection, (() => this.onUserDisconnection(socket)));
     socket.on(EVENT.userCloseTab, this.onUserCloseTab);

@@ -4,12 +4,16 @@ import { uuid } from 'uuidv4';
 import socketIOClient from 'socket.io-client';
 
 const ENDPOINT = 'http://localhost:1234';
-let socket = socketIOClient(ENDPOINT);
+let socket = socketIOClient(ENDPOINT, {
+  extraHeaders: {
+    'access-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50Ijp7ImlkIjoiNWRlZmExNDAtNTcxNC0xMWViLWI4YmUtNmQzMTcyNDQwNzE0Iiwicm9sZXMiOlsidXdfc3RhZmYiXSwidGVuYW50X2lkIjoiYzJjZjhkNjctNzBkNC00MDExLTgyMzktZWRiNTM5ZDQwYTNmIn0sInN0YWZmIjp7ImlkIjoiOGNiM2QzNTgtODcyOS00Y2RkLThjYzctMTE4NmMyMzQwNGIyIiwiYnJhbmNoX2lkIjoiNjY3ZTc1ODUtOWM5Yi00N2VjLWE1OWQtOGVkZDVhY2ZiMmViIiwidGVuYW50X2lkIjoiYzJjZjhkNjctNzBkNC00MDExLTgyMzktZWRiNTM5ZDQwYTNmIn0sInRva2VuVHlwZSI6ImFjY2Vzc190b2tlbiIsImlhdCI6MTYxMTA0MDU3MCwiZXhwIjo5MDAxNjExMDQwNTcwfQ.ZpufqhxqJTiIXajo4EH9Dip7gwuZvM9KRtjCoJ8mJ74',
+  },
+});
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-    
+
     this.state = {
       task: {},
       id: '',
@@ -87,7 +91,7 @@ class App extends React.Component {
     } else {
       console.log('have not task');
     }
-    
+
   }
 
   render() {
